@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements | IIDS Student Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">IIDS Portal</div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html">My Profile</a></li>
+                <li><a href="fees.html">Fees & Payments</a></li>
+                <li><a href="academics.html">Academics</a></li>
+                <li><a href="achievements.html" class="active">Achievements</a></li>
+                <li><a href="certifications.html">Certifications</a></li>
+                <li><a href="hostel.html">Hostel</a></li>
+                <li><a href="transport.html">Transport</a></li>
+            </ul>
+            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button id="logoutBtn" class="btn btn-ghost" style="width: 100%; color: white; border-color: white;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>My Achievements</h2>
+                <button id="submitBtn" class="btn btn-primary">+ Submit New</button>
+            </header>
+
+            <div id="achievementsList">
+                <!-- Cards injected by achievements.js -->
+                <div class="flex-center" style="height: 60vh;">
+                    <p>Loading achievements...</p>
+                </div>
+            </div>
+
+            <!-- Submission Modal -->
+            <div id="submitModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+                <div class="login-card" style="max-width: 600px; text-align: left;">
+                    <h3 style="margin-bottom: 1.5rem;">Submit Achievement</h3>
+                    <form id="achievementForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select id="category" class="form-input" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Games">Games</option>
+                                    <option value="Hackathon">Hackathon</option>
+                                    <option value="Symposium">Symposium</option>
+                                    <option value="Paper Presentation">Paper Presentation</option>
+                                    <option value="Project Competition">Project Competition</option>
+                                    <option value="Coding Competition">Coding Competition</option>
+                                    <option value="Workshop">Workshop</option>
+                                    <option value="Technical Event">Technical Event</option>
+                                    <option value="Cultural Event">Cultural Event</option>
+                                    <option value="Club Activity">Club Activity</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Event Name</label>
+                                <input type="text" id="eventName" class="form-input" placeholder="e.g. Smart India Hackathon" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Organizer</label>
+                                <input type="text" id="organizer" class="form-input" placeholder="e.g. Ministry of Education" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Event Date</label>
+                                <input type="date" id="eventDate" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Level</label>
+                                <select id="level" class="form-input" required>
+                                    <option value="">Select Level</option>
+                                    <option value="College">College</option>
+                                    <option value="Department">Department</option>
+                                    <option value="Inter-College">Inter-College</option>
+                                    <option value="District">District</option>
+                                    <option value="State">State</option>
+                                    <option value="National">National</option>
+                                    <option value="International">International</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Position</label>
+                                <select id="position" class="form-input" required>
+                                    <option value="">Select Position</option>
+                                    <option value="Participant">Participant</option>
+                                    <option value="Winner">Winner</option>
+                                    <option value="Runner-up">Runner-up</option>
+                                    <option value="Finalist">Finalist</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea id="description" class="form-input" style="height: 80px; resize: none;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Proof Reference (URL/ID)</label>
+                            <input type="text" id="proof" class="form-input" placeholder="Link to certificate or ID">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                            <button type="button" id="closeModal" class="btn btn-ghost">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Achievement</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/achievements.js"></script>
+</body>
+</html>

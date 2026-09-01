@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | IIDS Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">IIDS Admin</div>
+            <ul class="sidebar-nav">
+                <li><a href="admin.html" class="active">Department Stats</a></a></li>
+                <li><a href="staff.html">Staff Verification</a></li>
+                <li><a href="reports.html">Detailed Reports</a></li>
+            </ul>
+            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button id="logoutBtn" class="btn btn-ghost" style="width: 100%; color: white; border-color: white;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Departmental Analytics</h2>
+                <div id="userBadge" style="font-weight: 600; color: var(--text-muted);"></div>
+            </header>
+
+            <div id="adminDashboard">
+                <!-- Summary Stats -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="label">Total Students</div>
+                        <div class="value" id="stat-total-students">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Fee Collection Rate</div>
+                        <div class="value" id="stat-collection-rate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Total Pending Fees</div>
+                        <div class="value" id="stat-pending-fees" style="color: var(--error);">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Pending Verifications</div>
+                        <div class="value" id="stat-pending-verif" style="color: var(--accent-color);">0</div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 1.5rem;">Financial Health</h3>
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 1.5rem;">Facility Distribution</h3>
+                        <canvas id="facilityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Quick Report Table -->
+                <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Top Fee Defaulters</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-color);">
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Register No</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Name</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Batch</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Pending Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="defaulterTableBody">
+                                <!-- Data injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

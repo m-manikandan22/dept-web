@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Profile | IIDS Student Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: #edf2f7;">
+    <div class="container flex-center" style="min-height: 100vh; padding: 2rem;">
+        <div class="login-card" style="max-width: 500px; text-align: left;">
+            <div class="login-header" style="text-align: center;">
+                <h1>Welcome to IIDS</h1>
+                <p>Let's set up your profile to generate your fee structure.</p>
+            </div>
+
+            <form id="onboardForm">
+                <div class="form-group">
+                    <label class="form-label">Accommodation Type</label>
+                    <select id="accommodation" class="form-input" required>
+                        <option value="">Select Option</option>
+                        <option value="Hosteller">Hosteller</option>
+                        <option value="Day Scholar">Day Scholar</option>
+                    </select>
+                </div>
+
+                <div id="transportGroup" class="form-group" style="display: none;">
+                    <label class="form-label">Transport Mode</label>
+                    <select id="transport" class="form-input">
+                        <option value="">Select Option</option>
+                        <option value="College Bus">College Bus</option>
+                        <option value="Outbus">Outbus</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Complete Setup</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const onboardForm = document.getElementById('onboardForm');
+        const accommodation = document.getElementById('accommodation');
+        const transportGroup = document.getElementById('transportGroup');
+
+        accommodation.addEventListener('change', (e) => {
+            if (e.target.value === 'Day Scholar') {
+                transportGroup.style.display = 'block';
+                document.getElementById('transport').required = true;
+            } else {
+                transportGroup.style.display = 'none';
+                document.getElementById('transport').required = false;
+            }
+        });
+
+        onboardForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                accommodationType: accommodation.value,
+                transportMode: document.getElementById('transport').value
+            };
+
+            try {
+                const res = await API.request('completeOnboarding', payload);
+                alert(res.message);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert('Error completing onboarding: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

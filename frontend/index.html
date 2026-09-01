@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | IIDS Student Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container flex-center" style="min-height: 100vh;">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>IIDS Portal</h1>
+                <p>AI & Data Science Department</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Register Number</label>
+                    <input type="text" id="regNo" class="form-input" placeholder="e.g. 23AD101" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Secret Key</label>
+                    <input type="password" id="secretKey" class="form-input" placeholder="Enter your unique key" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+
+            <div id="errorMessage" class="toast toast-error" style="display: none; position: static; margin-top: 1rem; text-align: center;"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const regNo = document.getElementById('regNo').value;
+            const secretKey = document.getElementById('secretKey').value;
+
+            // Loading state
+            const btn = loginForm.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Authenticating...';
+            btn.disabled = true;
+
+            const result = await Auth.login(regNo, secretKey);
+
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorDiv.innerText = result.error;
+                errorDiv.style.display = 'block';
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

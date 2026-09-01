@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Hub | IIDS Student Management</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">IIDS Staff Hub</div>
+            <ul class="sidebar-nav">
+                <li><a href="staff.html" id="nav-students" class="active">Student Management</a></li>
+                <li><a href="staff.html" id="nav-verif">Verification Queue</a></li>
+                <li><a href="logs.html">Audit Logs</a></li>
+            </ul>
+            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto;">
+                <button id="logoutBtn" class="btn btn-ghost" style="width: 100%; color: white; border-color: white;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 id="pageTitle">Student Management</h2>
+                <div id="userBadge" style="font-weight: 600; color: var(--text-muted);">Staff: AIDS-STAFF</div>
+            </header>
+
+            <!-- STUDENT MANAGEMENT SECTION -->
+            <div id="section-students">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="text" id="searchStudent" class="form-input" style="width: 250px;" placeholder="Search name or reg no...">
+                        <select id="filterBatch" class="form-input" style="width: 120px;">
+                            <option value="">All Batches</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                        <select id="filterSection" class="form-input" style="width: 120px;">
+                            <option value="">All Sections</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                        </select>
+                        <button id="applyFilters" class="btn btn-primary">Filter</button>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="btnBulkImport" class="btn btn-ghost">Bulk Import</button>
+                        <button id="btnAddStudent" class="btn btn-primary">+ Add Student</button>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Reg No</th>
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Name</th>
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Batch</th>
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Section</th>
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Status</th>
+                                <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- Data injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VERIFICATION QUEUE SECTION (Hidden by default) -->
+            <div id="section-verif" style="display: none;">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <button id="tabAch" class="btn btn-primary">Achievements</button>
+                    <button id="tabCert" class="btn btn-ghost">Certifications</button>
+                </div>
+                <div id="queueContent">
+                    <!-- Table injected by JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ADD STUDENT MODAL -->
+    <div id="addStudentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="login-card" style="max-width: 600px; text-align: left;">
+            <h3 style="margin-bottom: 1.5rem;">Add New Student</h3>
+            <form id="addStudentForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Register Number</label>
+                        <input type="text" id="regNo" class="form-input" placeholder="e.g. 23AD101" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="name" class="form-input" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Batch</label>
+                        <select id="batch" class="form-input" required>
+                            <option value="">Select Batch</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Section</label>
+                        <select id="section" class="form-input" required>
+                            <option value="">Select Section</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="student@college.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="text" id="phone" class="form-input" placeholder="Phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select id="gender" class="form-input">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <input type="number" id="sem" class="form-input" value="1" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Secret Key</label>
+                        <input type="text" id="secretKey" class="form-input" placeholder="Set a unique secret key for this student" required>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="closeAddModal" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BULK IMPORT MODAL -->
+    <div id="bulkImportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="login-card" style="max-width: 500px; text-align: left;">
+            <h3 style="margin-bottom: 1.5rem;">Bulk Import Students</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Upload a CSV file with headers: <br>
+                <strong>RegisterNo, Name, Batch, Section, Email, Phone, Gender, Department, Semester</strong>
+            </p>
+            <div class="form-group">
+                <label class="form-label">Select CSV File</label>
+                <input type="file" id="csvFile" class="form-input" accept=".csv" required>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <button type="button" id="closeBulkModal" class="btn btn-ghost">Cancel</button>
+                <button id="processBulkBtn" class="btn btn-primary">Process & Export Keys</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VERIFY MODAL -->
+    <div id="verifyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="login-card" style="max-width: 500px; text-align: left;">
+            <h3 style="margin-bottom: 1.5rem;">Verify Record</h3>
+            <div id="recordDetails" style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-main);"></div>
+            <div class="form-group">
+                <label class="form-label">Verification Remarks</label>
+                <textarea id="remarks" class="form-input" style="height: 80px; resize: none;" placeholder="Reason for rejection or notes..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <button id="closeVerifyModal" class="btn btn-ghost">Cancel</button>
+                <button id="rejectBtn" class="btn btn-ghost" style="color: var(--error); border-color: var(--error);">Reject</button>
+                <button id="verifyBtn" class="btn btn-primary">Verify & Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/staff.js"></script>
+</body>
+</html>

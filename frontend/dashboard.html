@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | IIDS Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">IIDS Student</div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="fees.html">Fees & Payments</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="certifications.html">Certifications</a></li>
+            </ul>
+            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto;">
+                <button id="logoutBtn" class="btn btn-ghost" style="width: 100%; color: white; border-color: white;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 id="welcomeText">Welcome</h2>
+                <div id="userBadge" style="font-weight: 600; color: var(--text-muted);"></div>
+            </header>
+
+            <div id="dashboardContent">
+                <!-- Content loaded by dashboard.js -->
+                <div class="flex-center" style="height: 60vh;">
+                    <p>Loading your dashboard...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

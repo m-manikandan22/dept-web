@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certifications | IIDS Student Portal</title>
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">IIDS Portal</div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html">My Profile</a></li>
+                <li><a href="fees.html">Fees & Payments</a></li>
+                <li><a href="academics.html">Academics</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="certifications.html" class="active">Certifications</a></li>
+                <li><a href="hostel.html">Hostel</a></li>
+                <li><a href="transport.html">Transport</a></li>
+            </ul>
+            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button id="logoutBtn" class="btn btn-ghost" style="width: 100%; color: white; border-color: white;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>My Certifications</h2>
+                <button id="submitBtn" class="btn btn-primary">+ Submit New</button>
+            </header>
+
+            <div id="certsList">
+                <!-- Cards injected by certifications.js -->
+                <div class="flex-center" style="height: 60vh;">
+                    <p>Loading certifications...</p>
+                </div>
+            </div>
+
+            <!-- Submission Modal -->
+            <div id="submitModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+                <div class="login-card" style="max-width: 500px; text-align: left;">
+                    <h3 style="margin-bottom: 1.5rem;">Submit Certification</h3>
+                    <form id="certForm">
+                        <div class="form-group">
+                            <label class="form-label">Course Name</label>
+                            <input type="text" id="courseName" class="form-input" placeholder="e.g. Deep Learning Specialization" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Platform</label>
+                            <input type="text" id="platform" class="form-input" placeholder="e.g. Coursera, Udemy" required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Completion Date</label>
+                                <input type="date" id="completionDate" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Score/Grade</label>
+                                <input type="text" id="score" class="form-input" placeholder="e.g. 98% or A+" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Certificate URL</label>
+                            <input type="url" id="certUrl" class="form-input" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Proof Reference</label>
+                            <input type="text" id="proof" class="form-input" placeholder="Reference ID">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                            <button type="button" id="closeModal" class="btn btn-ghost">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Certification</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/certifications.js"></script>
+</body>
+</html>
