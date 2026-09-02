@@ -2,7 +2,10 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUserRole } from '@/lib/auth';
 
-export default async function RegisterPage() {
+export default async function RegisterPage(props: {
+  searchParams: Promise<{ message?: string }>;
+}) {
+  const searchParams = await props.searchParams;
   const role = await getUserRole();
   if (role) redirect('/dashboard');
 
@@ -13,6 +16,12 @@ export default async function RegisterPage() {
           <h1 className="text-2xl font-bold text-[#1a365d] mb-2">Student Registration</h1>
           <p className="text-gray-500 text-sm">Create your account to access the portal</p>
         </div>
+
+        {searchParams.message && (
+          <div className="mb-4 p-3 bg-red-100 text-red-600 rounded text-sm text-left">
+            {searchParams.message}
+          </div>
+        )}
 
         <form action="/api/auth/register" method="POST" className="text-left">
           <div className="form-group mb-4">

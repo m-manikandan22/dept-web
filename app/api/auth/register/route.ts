@@ -1,89 +1,89 @@
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const registerNumber = (formData.get('registerNumber') as string || '').trim();
+  const registerNumber = (formData.get('registerNumber') as string || '').trim().toUpperCase();
   const email = (formData.get('email') as string || '').trim().toLowerCase();
   const password = formData.get('password') as string;
 
+  // 1. Validate input
   if (!registerNumber || !email || !password) {
-    return redirect('/register?message=All fields are required');
+    return redirect('/register?message=All fields are required.');
   }
 
+  if (password.length < 6) {
+    return redirect('/register?message=Password must be at least 6 characters long.');
+  }
+
+  const adminSupabase = createAdminClient();
+  const ssrSupabase = await createClient();
+
   try {
-    // 1. Verify student exists in the master database and get their authorized email
-    // We use .ilike for case-insensitive matching of the register number
-    console.log(`[REGISTRATION] Attempting lookup for register number: "${registerNumber}"`);
-    const { data: student, error: studentError } = await supabase
+    // 2. Find master student record
+    console.log(`[AUTH][REGISTER] Looking up student: ${registerNumber}`);
+    const { data: student, error: studentError } = await adminSupabase
       .from('students')
-      .select('id, email')
-      .ilike('register_number', registerNumber)
-      .single();
+      .select('id, email, status')
+      .eq('register_number', registerNumber)
+      .maybeSingle();
 
     if (studentError) {
-      console.error('[REGISTRATION] Student lookup failed:', {
-        message: studentError.message,
-        code: studentError.code,
-        details: studentError.details,
-        hint: studentError.hint,
-      });
-
-      if (studentError.code === 'PGRST116') {
-        console.log('[REGISTRATION] Student not found (PGRST116)');
-        return redirect('/register?message=Register number not found in our database.');
-      }
+      console.error(`[AUTH][REGISTER] Database error during lookup for ${registerNumber}:`, studentError);
       return redirect('/register?message=Unable to verify your student record right now. Please try again.');
     }
 
     if (!student) {
-      console.log('[REGISTRATION] Student not found (null data)');
-      return redirect('/register?message=Register number not found in our database.');
+      console.warn(`[AUTH][REGISTER] Student not found: ${registerNumber}`);
+      return redirect('/register?message=Register number not found in our student database.');
     }
 
-    console.log('[REGISTRATION] Student found successfully');
+    // 3. Verify student status
+    if (student.status !== 'ACTIVE') {
+      console.warn(`[AUTH][REGISTER] Inactive student: ${registerNumber}`);
+      return redirect('/register?message=This student account is not eligible for registration.');
+    }
 
-    // 2. Verify the provided email matches the master record
+    // 4. Verify college email
     const authorizedEmail = student.email?.trim().toLowerCase();
     if (!authorizedEmail || email !== authorizedEmail) {
-      console.log('[REGISTRATION] Email mismatch');
+      console.warn(`[AUTH][REGISTER] Email mismatch for ${registerNumber}`);
       return redirect('/register?message=Register number and college email do not match.');
     }
 
-    // 3. Check if a profile already exists for this student (duplicate account)
-    const { data: profile, error: profileError } = await supabase
+    // 5. Check for existing profile
+    const { data: profile, error: profileError } = await adminSupabase
       .from('profiles')
       .select('id')
       .eq('student_id', student.id)
       .single();
 
-    if (profileError && profileError.code !== 'PGRST116') {
-      console.error('[AUTH] Database error checking existing profile:', profileError);
-      return redirect('/register?message=Unable to verify account status right now. Please try again.');
-    }
-
     if (profile) {
-      console.log('[REGISTRATION] Account already exists');
-      return redirect('/login?message=An account already exists. Please log in.');
+      console.warn(`[AUTH][REGISTER] Profile already exists for student: ${student.id}`);
+      return redirect('/login?message=An account already exists for this student. Please log in.');
     }
 
-    // 4. Create the user in Supabase Auth
-    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+    // 6. Create Auth User (Admin API)
+    console.log(`[AUTH][REGISTER] Creating auth user for: ${email}`);
+    const { data: authUser, error: authError } = await adminSupabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
     });
 
     if (authError) {
-      return redirect('/register?message=Authentication account creation failed: ' + authError.message);
+      console.error('[AUTH][REGISTER] Auth user creation failed:', authError.message);
+      // Handle duplicate email explicitly if it's not already handled by the profile check
+      if (authError.message.includes('already registered')) {
+        return redirect('/login?message=An account already exists. Please log in.');
+      }
+      return redirect('/register?message=Unable to create your account right now. Please try again.');
     }
 
-    // 5. Create the profile linked to this auth user and student record
-    const { error: profileInsertError } = await supabase
+    // 7. Create Profile
+    console.log(`[AUTH][REGISTER] Creating profile for user: ${authUser.user.id}`);
+    const { error: profileInsertError } = await adminSupabase
       .from('profiles')
       .insert({
         user_id: authUser.user.id,
@@ -92,25 +92,31 @@ export async function POST(request: Request) {
       });
 
     if (profileInsertError) {
-      // Rollback auth user if profile creation fails to prevent inconsistent state
-      await supabase.auth.admin.deleteUser(authUser.user.id);
-      return redirect('/register?message=Profile creation failed. Your account was not created.');
+      console.error('[AUTH][REGISTER] Profile creation failed, rolling back auth user:', profileInsertError.message);
+      // Rollback Auth user to prevent orphaned accounts
+      await adminSupabase.auth.admin.deleteUser(authUser.user.id);
+      return redirect('/register?message=Unable to create your account right now. Please try again.');
     }
 
-    // 6. Sign in the new user server-side to create a session
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    // 8. Establish SSR Session
+    // We use the SSR client's signInWithPassword to set the cookies for the browser
+    console.log(`[AUTH][REGISTER] Establishing session for: ${email}`);
+    const { error: signInError } = await ssrSupabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (signInError) {
+      console.error('[AUTH][REGISTER] Auto-login failed:', signInError.message);
       return redirect('/login?message=Registration successful, but automatic login failed. Please log in manually.');
     }
 
+    console.log(`[AUTH][REGISTER] Registration successful for: ${email}`);
     return redirect('/dashboard');
+
   } catch (error: any) {
     if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error;
-    console.error('[AUTH] Registration error:', error);
+    console.error('[AUTH][REGISTER] Unexpected error:', error);
     return redirect('/register?message=An unexpected error occurred. Please try again.');
   }
 }

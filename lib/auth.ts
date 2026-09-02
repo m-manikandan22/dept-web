@@ -1,46 +1,36 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient as createSsrClient } from '@/lib/supabase/server';
 
 export async function createClient() {
-  const cookieStore = await cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options });
-          } catch (error) {
-            // Handle cookie setting error
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options });
-          } catch (error) {
-            // Handle cookie removal error
-          }
-        },
-      },
-    }
-  );
+  return await createSsrClient();
 }
 
-export async function getUserRole() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+export async function getCurrentUser() {
+  const supabase = await createSsrClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
+  return user;
+}
 
-  const { data: profile } = await supabase
+export async function getCurrentProfile() {
+  const supabase = await createSsrClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return null;
+
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role')
+    .select('*')
     .eq('user_id', user.id)
     .single();
 
+  if (profileError) {
+    console.error('[AUTH] Error fetching user profile:', profileError);
+    return null;
+  }
+
+  return profile;
+}
+
+export async function getUserRole() {
+  const profile = await getCurrentProfile();
   return profile?.role || null;
 }
