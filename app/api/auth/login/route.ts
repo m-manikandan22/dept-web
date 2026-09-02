@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { nextjsI18nPages } from '@vercel/internationalization/client';
 
 export async function POST(request: Request) {
   const formData = await request.formData();

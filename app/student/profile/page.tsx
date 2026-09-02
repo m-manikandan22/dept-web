@@ -1,5 +1,6 @@
 import { getUserRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { studentService } from '@/lib/services/studentService';
 import { createClient } from '@/lib/auth';
 

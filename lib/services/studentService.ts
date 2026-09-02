@@ -7,7 +7,7 @@ import { certificationRepository } from '../repositories/certificationRepository
 
 export const studentService = {
   async getFullProfile(registerNo: string) {
-    const student = await studentRepository.getByRegisterNumber(regNo);
+    const student = await studentRepository.getByRegisterNumber(registerNo);
     if (!student) throw new Error('Student not found');
 
     const [academics, fees, payments, achievements, certifications] = await Promise.all([

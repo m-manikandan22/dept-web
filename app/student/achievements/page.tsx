@@ -1,5 +1,6 @@
 import { getUserRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/auth';
 import { achievementRepository } from '@/lib/repositories/achievementRepository';
 

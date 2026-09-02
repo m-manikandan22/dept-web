@@ -1,16 +1,18 @@
 import { getUserRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { studentRepository } from '@/lib/repositories/studentRepository';
 
 export default async function StaffStudentsPage({
   searchParams,
 }: {
-  searchParams: { batch?: string; section?: string; search?: string };
+  searchParams: Promise<{ batch?: string; section?: string; search?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const role = await getUserRole();
   if (!role || role === 'STUDENT') redirect('/login');
 
-  const students = await studentRepository.getAll(searchParams);
+  const students = await studentRepository.getAll(resolvedSearchParams);
 
   return (
     <div>
@@ -27,7 +29,7 @@ export default async function StaffStudentsPage({
             <label className="form-label">Search</label>
             <input
               name="search"
-              defaultValue={searchParams.search}
+              defaultValue={resolvedSearchParams.search}
               className="form-input"
               placeholder="Name or Reg No..."
             />
@@ -36,7 +38,7 @@ export default async function StaffStudentsPage({
             <label className="form-label">Batch</label>
             <input
               name="batch"
-              defaultValue={searchParams.batch}
+              defaultValue={resolvedSearchParams.batch}
               className="form-input"
               placeholder="e.g. 2021-25"
             />
@@ -45,7 +47,7 @@ export default async function StaffStudentsPage({
             <label className="form-label">Section</label>
             <input
               name="section"
-              defaultValue={searchParams.section}
+              defaultValue={resolvedSearchParams.section}
               className="form-input"
               placeholder="e.g. A"
             />

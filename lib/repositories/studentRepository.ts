@@ -38,7 +38,7 @@ export const studentRepository = {
 
   async create(studentData: any) {
     // First ensure batch exists or create it
-    let batchId: string;
+    let batchId: string | null = null;
     if (studentData.batch) {
       const { data: batch } = await supabase
         .from('batches')
@@ -46,15 +46,15 @@ export const studentRepository = {
         .eq('name', studentData.batch)
         .single();
 
-      if (batch && batch.data) {
-        batchId = batch.data.id;
+      if (batch) {
+        batchId = batch.id;
       } else {
         const { data: newBatch } = await supabase
           .from('batches')
           .insert({ name: studentData.batch })
           .select()
           .single();
-        batchId = newBatch?.data?.id || '';
+        batchId = newBatch?.id || null;
       }
     }
 

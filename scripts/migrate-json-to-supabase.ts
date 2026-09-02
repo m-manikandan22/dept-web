@@ -13,7 +13,7 @@ async function migrate() {
     records_inserted: 0,
     records_skipped: 0,
     records_failed: 0,
-    validation_errors: [],
+    validation_errors: [] as string[],
   };
 
   const tables = [
@@ -23,7 +23,7 @@ async function migrate() {
         return {
           register_number: row.RegisterNo,
           name: row.Name,
-          batch_id: b?.data?.id,
+          batch_id: b?.id,
           section: row.Section,
           email: row.Email,
           phone: row.Phone,
@@ -45,7 +45,7 @@ async function migrate() {
     { name: 'academic_records', file: 'academics.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           academic_year: row.AcademicYear,
           semester: parseInt(row.Semester),
           sgpa: parseFloat(row.SGPA),
@@ -59,7 +59,7 @@ async function migrate() {
     { name: 'fees', file: 'fees.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           academic_year: row.AcademicYear,
           semester: parseInt(row.Semester),
           fee_type: row.FeeType,
@@ -73,8 +73,8 @@ async function migrate() {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         const { data: f } = await supabase.from('fees').select('id').eq('FeeID', row.FeeID).single();
         return {
-          student_id: s?.data?.id,
-          fee_id: f?.data?.id,
+          student_id: s?.id,
+          fee_id: f?.id,
           amount: parseFloat(row.Amount),
           payment_date: row.PaymentDate,
           mode: row.PaymentMode,
@@ -85,7 +85,7 @@ async function migrate() {
     { name: 'hostel_details', file: 'hostel.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           accommodation_type: row.AccommodationType,
           hostel_name: row.HostelName,
           room_number: row.RoomNumber,
@@ -98,7 +98,7 @@ async function migrate() {
     { name: 'transport_details', file: 'transport.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           uses_bus: row.UsesCollegeBus === 'true' || row.UsesCollegeBus === true,
           route: row.Route,
           bus_number: row.BusNumber,
@@ -110,7 +110,7 @@ async function migrate() {
     { name: 'achievements', file: 'achievements.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           category: row.Category,
           event_name: row.EventName,
           organizer: row.Organizer,
@@ -126,7 +126,7 @@ async function migrate() {
     { name: 'certifications', file: 'certifications.json', map: async (row: any) => {
         const { data: s } = await supabase.from('students').select('id').eq('register_number', row.RegisterNo).single();
         return {
-          student_id: s?.data?.id,
+          student_id: s?.id,
           course_name: row.CourseName,
           platform: row.Platform,
           completion_date: row.CompletionDate,
@@ -146,7 +146,7 @@ async function migrate() {
       for (const row of data) {
         report.records_read++;
         const mapped = await table.map(row);
-        const { error } = await supabase.from(table.name).insert(mapped);
+        const { error } = await supabase.from(table.name).insert(mapped as any);
         if (error) {
           report.records_failed++;
           report.validation_errors.push(`${table.name} error: ${error.message}`);
@@ -154,7 +154,7 @@ async function migrate() {
           report.records_inserted++;
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(`Skipping ${table.name}: ${e.message}`);
     }
   }
