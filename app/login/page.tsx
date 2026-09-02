@@ -32,6 +32,7 @@ export default async function LoginPage(props: {
               className="form-input"
               placeholder="Enter your register number"
               required
+              autoComplete="username"
             />
           </div>
           <div className="form-group mb-6">
@@ -42,6 +43,7 @@ export default async function LoginPage(props: {
               className="form-input"
               placeholder="Enter your secret key"
               required
+              autoComplete="current-password"
             />
           </div>
           <button type="submit" className="btn btn-primary w-full justify-center">

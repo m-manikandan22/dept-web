@@ -2,6 +2,7 @@ import { getUserRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { studentRepository } from '@/lib/repositories/studentRepository';
+import DeleteStudentButton from '@/app/staff/components/DeleteStudentButton';
 
 export default async function StaffStudentsPage({
   searchParams,
@@ -91,8 +92,8 @@ export default async function StaffStudentsPage({
                     </span>
                   </td>
                   <td className="p-4 flex gap-2">
-                    <Link href={`/student/profile?id=${student.id}`} className="text-blue-600 hover:underline text-sm">View</Link>
-                    <button className="text-red-600 hover:underline text-sm">Delete</button>
+                    <Link href={`/staff/students/${student.id}`} className="text-blue-600 hover:underline text-sm">View</Link>
+                    <DeleteStudentButton studentId={student.id} />
                   </td>
                 </tr>
               ))

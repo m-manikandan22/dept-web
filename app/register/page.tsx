@@ -33,6 +33,7 @@ export default async function RegisterPage() {
               className="form-input"
               placeholder="Enter your college email"
               required
+              autoComplete="email"
             />
           </div>
           <div className="form-group mb-6">
@@ -43,6 +44,7 @@ export default async function RegisterPage() {
               className="form-input"
               placeholder="Enter a strong password"
               required
+              autoComplete="new-password"
             />
           </div>
           <button type="submit" className="btn btn-primary w-full justify-center">

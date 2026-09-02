@@ -10,6 +10,17 @@ export const studentService = {
     const student = await studentRepository.getByRegisterNumber(registerNo);
     if (!student) throw new Error('Student not found');
 
+    return this.assembleFullProfile(student);
+  },
+
+  async getFullProfileById(id: string) {
+    const student = await studentRepository.getById(id);
+    if (!student) throw new Error('Student not found');
+
+    return this.assembleFullProfile(student);
+  },
+
+  async assembleFullProfile(student: any) {
     const [academics, fees, payments, achievements, certifications] = await Promise.all([
       academicRepository.getByStudent(student.id),
       feeRepository.getByStudent(student.id),

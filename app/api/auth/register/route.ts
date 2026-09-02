@@ -65,8 +65,19 @@ export async function POST(request: Request) {
       return redirect('/register?message=Profile creation failed: ' + profileInsertError.message);
     }
 
+    // Sign in the new user server-side to create a session
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      return redirect('/login?message=Registration successful, but automatic login failed. Please log in manually.');
+    }
+
     return redirect('/dashboard');
   } catch (error: any) {
+    if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error;
     return redirect('/register?message=Unexpected error: ' + error.message);
   }
 }

@@ -36,6 +36,17 @@ export const studentRepository = {
     return data;
   },
 
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   async create(studentData: any) {
     // First ensure batch exists or create it
     let batchId: string | null = null;

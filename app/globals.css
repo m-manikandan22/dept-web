@@ -41,3 +41,29 @@ body {
   box-shadow: var(--shadow);
   border-left: 4px solid var(--secondary-color);
 }
+
+/* Form Utilities */
+.form-group {
+  @apply flex flex-col gap-1;
+}
+
+.form-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-md font-medium transition-all flex items-center justify-center;
+}
+
+.btn-primary {
+  @apply btn bg-[#1a365d] text-white hover:bg-[#2a466d];
+}
+
+.btn-ghost {
+  @apply btn bg-transparent text-gray-600 border border-gray-300 hover:bg-gray-50;
+}
+

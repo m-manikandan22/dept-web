@@ -1,6 +1,7 @@
 import { getUserRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { staffService } from '@/lib/services/staffService';
+import { verifyAchievement, verifyCertification } from '@/app/staff/actions';
 
 export default async function VerifyPage() {
   const role = await getUserRole();
@@ -34,8 +35,16 @@ export default async function VerifyPage() {
                     <td className="p-4">{ach.event_name}</td>
                     <td className="p-4">{ach.level}</td>
                     <td className="p-4 flex gap-2">
-                      <button className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Verify</button>
-                      <button className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                      <form action={verifyAchievement}>
+                        <input type="hidden" name="achievementId" value={ach.id} />
+                        <input type="hidden" name="status" value="VERIFIED" />
+                        <button className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Verify</button>
+                      </form>
+                      <form action={verifyAchievement}>
+                        <input type="hidden" name="achievementId" value={ach.id} />
+                        <input type="hidden" name="status" value="REJECTED" />
+                        <button className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                      </form>
                     </td>
                   </tr>
                 ))
@@ -67,8 +76,16 @@ export default async function VerifyPage() {
                     <td className="p-4">{cert.course_name}</td>
                     <td className="p-4">{cert.platform}</td>
                     <td className="p-4 flex gap-2">
-                      <button className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Verify</button>
-                      <button className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                      <form action={verifyCertification}>
+                        <input type="hidden" name="certId" value={cert.id} />
+                        <input type="hidden" name="status" value="VERIFIED" />
+                        <button className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Verify</button>
+                      </form>
+                      <form action={verifyCertification}>
+                        <input type="hidden" name="certId" value={cert.id} />
+                        <input type="hidden" name="status" value="REJECTED" />
+                        <button className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                      </form>
                     </td>
                   </tr>
                 ))
