@@ -23,6 +23,7 @@ export default async function RegisterPage() {
               className="form-input"
               placeholder="Enter your register number"
               required
+              autoComplete="off"
             />
           </div>
           <div className="form-group mb-4">

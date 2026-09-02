@@ -25,23 +25,23 @@ export default async function LoginPage(props: {
 
         <form action="/api/auth/login" method="POST" className="text-left">
           <div className="form-group mb-4">
-            <label className="form-label">Register Number</label>
+            <label className="form-label">College Email</label>
             <input
-              name="registerNumber"
-              type="text"
+              name="email"
+              type="email"
               className="form-input"
-              placeholder="Enter your register number"
+              placeholder="Enter your college email"
               required
-              autoComplete="username"
+              autoComplete="email"
             />
           </div>
           <div className="form-group mb-6">
-            <label className="form-label">Secret Key / Password</label>
+            <label className="form-label">Password</label>
             <input
               name="password"
               type="password"
               className="form-input"
-              placeholder="Enter your secret key"
+              placeholder="Enter your password"
               required
               autoComplete="current-password"
             />
