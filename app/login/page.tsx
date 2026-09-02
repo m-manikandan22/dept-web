@@ -27,7 +27,7 @@ export default async function LoginPage(props: {
           <div className="form-group mb-4">
             <label className="form-label">Register Number</label>
             <input
-              name="email"
+              name="registerNumber"
               type="text"
               className="form-input"
               placeholder="Enter your register number"

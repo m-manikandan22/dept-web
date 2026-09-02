@@ -3,13 +3,24 @@ import { redirect } from 'next/navigation';
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const email = formData.get('email') as string;
+  const registerNumber = formData.get('registerNumber') as string;
   const password = formData.get('password') as string;
 
   const supabase = await createClient();
 
+  // Lookup email by register number
+  const { data: student, error: lookupError } = await supabase
+    .from('students')
+    .select('email')
+    .eq('register_number', registerNumber)
+    .single();
+
+  if (lookupError || !student) {
+    return redirect(`/login?message=${encodeURIComponent('Invalid register number or account not found')}`);
+  }
+
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: student.email,
     password,
   });
 
