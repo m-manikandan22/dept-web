@@ -1,4 +1,4 @@
-import { createClient, getUserRole } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
@@ -6,8 +6,11 @@ export default async function LoginPage(props: {
   searchParams: Promise<{ message?: string }>;
 }) {
   const searchParams = await props.searchParams;
-  const role = await getUserRole();
-  if (role) redirect('/dashboard');
+
+  // Use only authentication check to redirect already logged-in users.
+  // Do NOT call getUserRole() or getCurrentProfile() here.
+  const user = await getCurrentUser();
+  if (user) redirect('/dashboard');
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f7fafc]">
@@ -51,7 +54,7 @@ export default async function LoginPage(props: {
           </button>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              Don't have an account? <Link href="/register" className="text-blue-600 hover:underline">Register here</Link>
+              Don&apos;t have an account? <Link href="/register" className="text-blue-600 hover:underline">Register here</Link>
             </p>
           </div>
         </form>

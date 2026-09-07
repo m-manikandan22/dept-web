@@ -1,0 +1,269 @@
+import { getCurrentProfile } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { updateStudentProfile } from '../actions';
+
+export default async function ProfilePage() {
+  const profile = await getCurrentProfile();
+  if (!profile) redirect('/login');
+
+  const supabase = createClient();
+
+  // Fetch student basic info
+  const { data: student } = await supabase
+    .from('students')
+    .select('*')
+    .eq('id', profile.student_id)
+    .single();
+
+  // Fetch batches for the dropdown
+  const { data: batches } = await supabase
+    .from('batches')
+    .select('id, name')
+    .order('name');
+
+  // Fetch hostel details
+  const { data: hostel } = await supabase
+    .from('hostel_details')
+    .select('*')
+    .eq('student_id', profile.student_id)
+    .maybeSingle();
+
+  // Fetch transport details
+  const { data: transport } = await supabase
+    .from('transport_details')
+    .select('*')
+    .eq('student_id', profile.student_id)
+    .maybeSingle();
+
+  if (!student) {
+    return (
+      <div className="p-6 text-center">
+        <h1 className="text-xl font-bold text-red-600">Student Record Not Found</h1>
+        <p>Your profile exists, but the linked student record is missing.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-[#1a365d] mb-2">My Profile</h1>
+          <p className="text-gray-600">Verify and update your personal and academic identification.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Profile Summary Card */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+            <div className="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">
+              {student.name.charAt(0)}
+            </div>
+            <h2 className="text-xl font-bold text-[#1a365d]">{student.name}</h2>
+            <p className="text-sm text-gray-500">{student.register_number}</p>
+            <div className="mt-4 pt-4 border-t border-gray-100 text-left space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Department</span>
+                <span className="font-medium text-gray-700">{student.department}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Semester</span>
+                <span className="font-medium text-gray-700">{student.semester}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Status</span>
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                  {student.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Form */}
+        <div className="lg:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+          <h3 className="text-lg font-bold text-[#1a365d] mb-6">Update Personal Information</h3>
+          <form action={updateStudentProfile} className="space-y-8">
+            {/* Section 1: Basic Identity */}
+            <div className="space-y-6">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-2">Basic Identity</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    defaultValue={student.phone || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="+91 00000 00000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Gender</label>
+                  <select
+                    name="gender"
+                    defaultValue={student.gender || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Father's Name</label>
+                  <input
+                    type="text"
+                    name="father_name"
+                    defaultValue={student.father_name || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Enter father's full name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    defaultValue={student.address || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Full residential address"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Academic Context */}
+            <div className="space-y-6">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-2">Academic Context</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Batch</label>
+                  <select
+                    name="batch_id"
+                    defaultValue={student.batch_id || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    <option value="">Select Batch</option>
+                    {batches?.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Current Semester</label>
+                  <input
+                    type="number"
+                    name="semester"
+                    defaultValue={student.semester || ''}
+                    min="1"
+                    max="8"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Section</label>
+                  <input
+                    type="text"
+                    name="section"
+                    defaultValue={student.section || ''}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="e.g. A"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Hostel & Transport */}
+            <div className="space-y-6">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-2">Accommodation & Transport</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Hostel */}
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Accommodation Type</label>
+                    <select
+                      name="accommodation_type"
+                      defaultValue={hostel?.accommodation_type || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Day Scholar">Day Scholar</option>
+                      <option value="Hosteller">Hosteller</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Hostel Name</label>
+                    <input
+                      type="text"
+                      name="hostel_name"
+                      defaultValue={hostel?.hostel_name || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Name of the hostel"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Room Number</label>
+                    <input
+                      type="text"
+                      name="room_number"
+                      defaultValue={hostel?.room_number || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="e.g. 101"
+                    />
+                  </div>
+                </div>
+
+                {/* Transport */}
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="flex items-center space-x-3 py-2">
+                    <input
+                      type="checkbox"
+                      name="uses_bus"
+                      id="uses_bus"
+                      defaultChecked={transport?.uses_bus || false}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="uses_bus" className="text-sm font-medium text-gray-700">I use the college bus</label>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Route</label>
+                    <input
+                      type="text"
+                      name="route"
+                      defaultValue={transport?.route || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="e.g. Route 12 - City Center"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Bus Number</label>
+                    <input
+                      type="text"
+                      name="bus_number"
+                      defaultValue={transport?.bus_number || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="e.g. TN-01-AB-1234"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 flex justify-end">
+              <button
+                type="submit"
+                className="px-8 py-3 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-blue-800 transition-all shadow-sm"
+              >
+                Save All Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

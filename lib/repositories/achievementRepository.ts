@@ -23,28 +23,4 @@ export const achievementRepository = {
     if (error) throw error;
     return data;
   },
-
-  async getVerificationQueue() {
-    const { data, error } = await supabase
-      .from('achievements')
-      .select('*, students(name, register_number)')
-      .eq('verification_status', 'PENDING');
-    if (error) throw error;
-    return data;
-  },
-
-  async verify(id: string, status: string, staffId: string) {
-    const { data, error } = await supabase
-      .from('achievements')
-      .update({
-        verification_status: status,
-        verified_by: staffId,
-        verified_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
-  }
 };

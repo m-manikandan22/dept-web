@@ -7,7 +7,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const feeRepository = {
   async getByStudent(studentId: string) {
     const { data, error } = await supabase
-      .from('fees')
+      .from('fee_structures')
       .select('*')
       .eq('student_id', studentId);
     if (error) throw error;
@@ -16,7 +16,7 @@ export const feeRepository = {
 
   async create(feeData: any) {
     const { data, error } = await supabase
-      .from('fees')
+      .from('fee_structures')
       .insert(feeData)
       .select()
       .single();
@@ -24,10 +24,10 @@ export const feeRepository = {
     return data;
   },
 
-  async updateStatus(id: string, status: string) {
+  async update(id: string, updates: any) {
     const { data, error } = await supabase
-      .from('fees')
-      .update({ status })
+      .from('fee_structures')
+      .update(updates)
       .eq('id', id)
       .select()
       .single();

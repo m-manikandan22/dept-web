@@ -8,7 +8,7 @@ export const paymentRepository = {
   async getByStudent(studentId: string) {
     const { data, error } = await supabase
       .from('payments')
-      .select('*, fees(fee_type, total_amount)')
+      .select('*')
       .eq('student_id', studentId);
     if (error) throw error;
     return data;

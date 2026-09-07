@@ -21,9 +21,16 @@ export async function POST(request: Request) {
 
     if (error) {
       console.warn(`[AUTH][LOGIN] Sign-in failed for ${email}: ${error.message}`);
-      const message = error.message.toLowerCase().includes('invalid login credentials')
-        ? 'Invalid email or password.'
-        : 'Unable to sign you in right now. Please try again.';
+
+      let message = 'Unable to sign you in right now. Please try again.';
+      const errMsg = error.message.toLowerCase();
+
+      if (errMsg.includes('invalid login credentials')) {
+        message = 'Invalid email or password.';
+      } else if (errMsg.includes('email not confirmed') || errMsg.includes('confirm your email')) {
+        message = 'Please verify your email before logging in.';
+      }
+
       return redirect(`/login?message=${encodeURIComponent(message)}`);
     }
 
