@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function StaffPaymentsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: payments } = await supabase
     .from('payments')
     .select('*, students(name, register_number)')

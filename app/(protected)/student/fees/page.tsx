@@ -65,7 +65,6 @@ export default async function FeesPage({
             payments={payments || []}
             hostelType={hostel?.accommodation_type}
             transportType={transport?.transport_type}
-            academicYear={currentYear}
           />
           <PaymentHistory payments={payments || []} />
         </div>

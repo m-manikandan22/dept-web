@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 
 export default async function StudentsPage({
@@ -7,7 +7,7 @@ export default async function StudentsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from('students')

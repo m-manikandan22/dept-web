@@ -1,5 +1,5 @@
-import { requireRole, createClient } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requireRole } from '@/lib/auth';
 import Link from 'next/link';
 
 export default async function AuditLogsPage() {
@@ -19,7 +19,7 @@ export default async function AuditLogsPage() {
 
   // Fetch logs from supabase (skipping repo for brevity here, would typically use an auditRepository)
   // For now, we'll implement a simple client call
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: logs } = await supabase.from('audit_logs').select('*').order('timestamp', { ascending: false });
 
   return (

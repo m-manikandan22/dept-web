@@ -14,7 +14,7 @@ interface Payment {
 }
 
 interface FeeSummaryProps {
-  feeStructure: FeeStructure | null;
+  feeStructure: FeeStructure | FeeStructure[] | null;
   payments: Payment[];
   hostelType?: string;
   transportType?: string;
@@ -30,30 +30,36 @@ export default function FeeSummary({ feeStructure, payments, hostelType, transpo
     );
   }
 
-  const components = [
-    { key: 'TUITION', label: 'Tuition', field: 'tuition_fee' },
-    { key: 'HOSTEL', label: 'Hostel', field: 'hostel_fee', applicable: hostelType === 'Hosteller' },
-    { key: 'TRANSPORT', label: 'Transport', field: 'transport_fee', applicable: transportType === 'COLLEGE_BUS' },
-  ];
+  // If an array is provided (e.g., from the page), use the first element.
+  const actualFeeStructure = Array.isArray(feeStructure) ? feeStructure[0] : feeStructure;
 
-  const calculatePaid = (component: string) => {
-    return payments
-      .filter(p => p.fee_component === component)
-      .reduce((sum, p) => sum + p.amount, 0);
-  };
 
-  const rows = components.filter(c => c.applicable === undefined || c.applicable).map(c => {
-    const required = feeStructure[c.field as keyof FeeStructure] || 0;
-    const paid = calculatePaid(c.key);
-    const pending = Math.max(required - paid, 0);
+    const components = [
+      { key: 'TUITION', label: 'Tuition', field: 'tuition_fee' },
+      { key: 'HOSTEL', label: 'Hostel', field: 'hostel_fee', applicable: hostelType === 'Hosteller' },
+      { key: 'TRANSPORT', label: 'Transport', field: 'transport_fee', applicable: transportType === 'COLLEGE_BUS' },
+    ];
 
-    return {
-      label: c.label,
-      required,
-      paid,
-      pending
+    const calculatePaid = (component: string) => {
+      return payments
+        .filter(p => p.fee_component === component)
+        .reduce((sum, p) => sum + p.amount, 0);
     };
-  });
+
+    const rows = components.filter(c => c.applicable === undefined || c.applicable).map(c => {
+      const required = actualFeeStructure[c.field as keyof FeeStructure] || 0;
+      const paid = calculatePaid(c.key);
+      const pending = Math.max(required - paid, 0);
+
+      return {
+        label: c.label,
+        required,
+        paid,
+        pending,
+      };
+    });
+
+
 
   const totalRequired = rows.reduce((sum, r) => sum + r.required, 0);
   const totalPaid = rows.reduce((sum, r) => sum + r.paid, 0);

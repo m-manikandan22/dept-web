@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function ReportsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // 1. Student Count
   const { count: studentCount } = await supabase

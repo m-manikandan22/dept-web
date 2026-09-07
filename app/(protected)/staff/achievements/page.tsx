@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function StaffAchievementsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: achievements } = await supabase
     .from('achievements')
     .select('*, students(name, register_number)')

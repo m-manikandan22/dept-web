@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/client';
+'use server';
+import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
@@ -28,7 +29,7 @@ async function updateFeeStructure(formData: FormData) {
 }
 
 export default async function FeesManagementPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch all students to allow fee assignment
   const { data: students } = await supabase

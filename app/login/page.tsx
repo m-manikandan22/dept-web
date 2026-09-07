@@ -54,7 +54,7 @@ export default async function LoginPage(props: {
           </button>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              Don&apos;t have an account? <Link href="/register" className="text-blue-600 hover:underline">Register here</Link>
+                Don&apos;t have an account? <Link href="/forgot-password" className="text-blue-600 hover:underline">Forgot your password?</Link>
             </p>
           </div>
         </form>
