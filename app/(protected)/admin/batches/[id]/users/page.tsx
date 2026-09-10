@@ -2,6 +2,7 @@ import { requireRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { registerStudentInBatch } from '../../actions';
 
 export default async function BatchUsersPage(props: {
   params: Promise<{ id: string }>;
@@ -45,20 +46,9 @@ export default async function BatchUsersPage(props: {
         {/* Add Student Form */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Add Student to Batch</h2>
-          <form action={async (formData) => {
-            'use server';
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/admin/register`, {
-              method: 'POST',
-              body: formData,
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              console.error(errorData.error);
-            }
-          }} className="space-y-4">
+          <form action={registerStudentInBatch} className="space-y-4">
             <input type="hidden" name="batchId" value={batchId} />
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">Register Number *</label>
               <input
                 name="registerNumber"
@@ -68,7 +58,7 @@ export default async function BatchUsersPage(props: {
                 required
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">Full Name *</label>
               <input
                 name="name"
@@ -78,7 +68,7 @@ export default async function BatchUsersPage(props: {
                 required
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">Email Address *</label>
               <input
                 name="email"
@@ -88,7 +78,7 @@ export default async function BatchUsersPage(props: {
                 required
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">Temporary Password *</label>
               <input
                 name="password"

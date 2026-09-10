@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { updateFeeDetails } from '../actions';
+
+interface CustomFee {
+  id: string;
+  name: string;
+  amount: number;
+}
 
 interface FeeFormProps {
   initialData?: {
@@ -13,13 +19,21 @@ interface FeeFormProps {
     hostel_paid: number;
     bus_total: number;
     bus_paid: number;
+    customFees: {
+      id: string;
+      name: string;
+      total: number;
+      paid: number;
+    }[];
   };
   academicYear: string;
+  customFeeDefinitions: CustomFee[];
 }
 
-export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
+export default function FeeForm({ initialData, academicYear, customFeeDefinitions }: FeeFormProps) {
   const [isHosteller, setIsHosteller] = useState<boolean>(initialData?.student_type === 'HOSTELLER');
   const [transportType, setTransportType] = useState<string>(initialData?.transport_type || 'OUTBUS');
+
   const [fees, setFees] = useState({
     tuitionTotal: initialData?.tuition_total || 0,
     tuitionPaid: initialData?.tuition_paid || 0,
@@ -27,13 +41,26 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
     hostelPaid: initialData?.hostel_paid || 0,
     busTotal: initialData?.bus_total || 0,
     busPaid: initialData?.bus_paid || 0,
+    customPaid: (initialData?.customFees || []).reduce((acc, cf) => {
+      acc[cf.id] = cf.paid;
+      return acc;
+    }, {} as Record<string, number>),
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleFeeChange = (field: keyof typeof fees, value: string) => {
     const numValue = parseFloat(value) || 0;
     setFees((prev) => ({ ...prev, [field]: numValue }));
+  };
+
+  const handleCustomFeeChange = (feeId: string, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setFees((prev) => ({
+      ...prev,
+      customPaid: { ...prev.customPaid, [feeId]: numValue },
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,6 +79,10 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
     formData.append('busTotal', fees.busTotal.toString());
     formData.append('busPaid', fees.busPaid.toString());
 
+    // Add custom fees as a JSON string or separate fields.
+    // Since server actions handle FormData, we'll use a JSON string for simplicity.
+    formData.append('customFees', JSON.stringify(fees.customPaid));
+
     try {
       await updateFeeDetails(formData);
       setMessage({ type: 'success', text: 'Fee details updated successfully!' });
@@ -62,10 +93,14 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
     }
   };
 
-  const FeeInput = ({ label, totalField, paidField }: { label: string; totalField: keyof typeof fees; paidField: keyof typeof fees }) => {
-    const total = fees[totalField];
-    const paid = fees[paidField];
-    const pending = total - paid;
+  const FeeInput = ({ label, total, paidField, value, onChange }: {
+    label: string;
+    total: number;
+    paidField: string;
+    value: number;
+    onChange: (val: string) => void;
+  }) => {
+    const pending = total - value;
 
     return (
       <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4">
@@ -76,8 +111,8 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
             <input
               type="number"
               value={total}
-              onChange={(e) => handleFeeChange(totalField, e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 outline-none"
               min="0"
             />
           </div>
@@ -85,8 +120,8 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
             <label className="text-xs text-gray-500">Fee Paid</label>
             <input
               type="number"
-              value={paid}
-              onChange={(e) => handleFeeChange(paidField, e.target.value)}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
               min="0"
             />
@@ -162,15 +197,44 @@ export default function FeeForm({ initialData, academicYear }: FeeFormProps) {
         )}
 
         <div className="space-y-4">
-          <FeeInput label="Tuition Fee" totalField="tuitionTotal" paidField="tuitionPaid" />
+          <FeeInput
+            label="Tuition Fee"
+            total={fees.tuitionTotal}
+            paidField="tuitionPaid"
+            value={fees.tuitionPaid}
+            onChange={(val) => handleFeeChange('tuitionPaid', val)}
+          />
 
           {isHosteller && (
-            <FeeInput label="Hostel Fee" totalField="hostelTotal" paidField="hostelPaid" />
+            <FeeInput
+              label="Hostel Fee"
+              total={fees.hostelTotal}
+              paidField="hostelPaid"
+              value={fees.hostelPaid}
+              onChange={(val) => handleFeeChange('hostelPaid', val)}
+            />
           )}
 
           {!isHosteller && transportType === 'COLLEGE_BUS' && (
-            <FeeInput label="Bus Fee" totalField="busTotal" paidField="busPaid" />
+            <FeeInput
+              label="Bus Fee"
+              total={fees.busTotal}
+              paidField="busPaid"
+              value={fees.busPaid}
+              onChange={(val) => handleFeeChange('busPaid', val)}
+            />
           )}
+
+          {customFeeDefinitions.map(cf => (
+            <FeeInput
+              key={cf.id}
+              label={cf.name}
+              total={cf.amount}
+              paidField={`custom_${cf.id}`}
+              value={fees.customPaid[cf.id] || 0}
+              onChange={(val) => handleCustomFeeChange(cf.id, val)}
+            />
+          ))}
         </div>
       </div>
 

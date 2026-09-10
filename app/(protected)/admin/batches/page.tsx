@@ -1,8 +1,9 @@
 import { requireRole } from '@/lib/auth';
 import { batchRepository } from '@/lib/repositories/batchRepository';
-import { createBatch, deleteBatch } from './actions';
+import { createBatch } from './actions';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import DeleteBatchButton from './DeleteBatchButton';
 
 export default async function BatchesPage() {
   const profile = await requireRole(['ADMIN']);
@@ -20,14 +21,7 @@ export default async function BatchesPage() {
         {/* Create Batch Form */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Create New Batch</h2>
-          <form action={async (formData) => {
-            'use server';
-            const result = await createBatch(formData);
-            if (!result.success) {
-              // In a real app, we'd use a toast or state for this
-              console.error(result.error);
-            }
-          }} className="space-y-4">
+          <form action={createBatch} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Batch Name *</label>
               <input
@@ -67,14 +61,7 @@ export default async function BatchesPage() {
                       >
                         Manage Students
                       </Link>
-                      <form action={async () => {
-                        'use server';
-                        await deleteBatch(batch.id);
-                      }}>
-                        <button type="submit" className="text-red-600 hover:underline">
-                          Delete
-                        </button>
-                      </form>
+                      <DeleteBatchButton batchId={batch.id} batchName={batch.name} />
                     </td>
                   </tr>
                 ))

@@ -2,6 +2,7 @@ import { getCurrentUser, getCurrentProfile } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import StaffDashboard from './StaffDashboard';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -20,6 +21,10 @@ export default async function DashboardPage() {
         <Link href="/login" className="text-blue-600 hover:underline">Return to Login</Link>
       </div>
     );
+  }
+
+  if (profile.role === 'STAFF' || profile.role === 'ADMIN') {
+    return <StaffDashboard profile={profile} />;
   }
 
   const studentId = profile.student_id;

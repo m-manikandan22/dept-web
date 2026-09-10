@@ -1,31 +1,37 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { batchRepository } from '@/lib/repositories/batchRepository';
+import { studentRepository } from '@/lib/repositories/studentRepository';
+import DataFilterBar from '../components/DataFilterBar';
+import ExportExcelButton from '../components/ExportExcelButton';
 
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; batch?: string; section?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, batch, section } = await searchParams;
   const supabase = await createClient();
 
-  let query = supabase
-    .from('students')
-    .select('*');
+  // Fetch batches for the filter bar
+  const batches = await batchRepository.getAll();
 
-  if (q) {
-    query = query.or(`register_number.ilike.%${q}%,name.ilike.%${q}%`);
-  }
+  // Use repository for filtered student list
+  const students = await studentRepository.getAll({
+    batch,
+    section,
+    search: q,
+  });
 
-  const { data: students, error } = await query.order('name', { ascending: true });
-
-  if (error) {
-    return (
-      <div className="p-6 text-red-600">
-        Error loading students: {error.message}
-      </div>
-    );
-  }
+  // Prepare data for Excel export
+  const exportData = students.map(s => ({
+    'Register No': s.register_number,
+    'Name': s.name,
+    'Email': s.email,
+    'Status': s.status,
+    'Batch': s.batches?.name || 'N/A',
+    'Section': s.section,
+  }));
 
   return (
     <div className="space-y-6">
@@ -36,31 +42,47 @@ export default async function StudentsPage({
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex gap-4">
-        <form className="flex-1 flex gap-2">
-          <input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder="Search by register number or name..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+      <div className="space-y-4">
+        {/* Search Bar */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex gap-4">
+          <form className="flex-1 flex gap-2">
+            <input
+              type="text"
+              name="q"
+              defaultValue={q}
+              placeholder="Search by register number or name..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 bg-[#1a365d] text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
+            >
+              Search
+            </button>
+          </form>
+          {q && (
+            <Link
+              href="/staff/students"
+              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 flex items-center"
+            >
+              Clear
+            </Link>
+          )}
+        </div>
+
+        {/* Universal Filters & Export */}
+        <div className="flex justify-between items-center gap-4">
+          <DataFilterBar
+            batches={batches}
+            sections={['A', 'B', 'C']} // Assuming standard sections
+            currentBatch={batch}
+            currentSection={section}
           />
-          <button
-            type="submit"
-            className="px-6 py-2 bg-[#1a365d] text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
-          >
-            Search
-          </button>
-        </form>
-        {q && (
-          <Link
-            href="/staff/students"
-            className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 flex items-center"
-          >
-            Clear
-          </Link>
-        )}
+          <ExportExcelButton
+            data={exportData}
+            filename="students-directory"
+          />
+        </div>
       </div>
 
       {/* Students Table */}

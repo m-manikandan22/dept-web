@@ -1,15 +1,69 @@
 import { createClient } from '@/lib/supabase/server';
+import { batchRepository } from '@/lib/repositories/batchRepository';
+import DataFilterBar from '../components/DataFilterBar';
+import ExportExcelButton from '../components/ExportExcelButton';
 
-export default async function StaffCertificationsPage() {
+export default async function StaffCertificationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ batch?: string; section?: string }>;
+}) {
+  const { batch, section } = await searchParams;
   const supabase = await createClient();
-  const { data: certifications } = await supabase
+
+  const batches = await batchRepository.getAll();
+
+  let query = supabase
     .from('certifications')
-    .select('*, students(name, register_number)')
+    .select('*, students!inner(name, register_number, batch_id, section)')
     .order('completion_date', { ascending: false });
+
+  if (batch) {
+    query = query.eq('students.batch_id', batch);
+  }
+  if (section) {
+    query = query.eq('students.section', section);
+  }
+
+  const { data: certifications, error } = await query;
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        Error loading certifications: {error.message}
+      </div>
+    );
+  }
+
+  const exportData = certifications.map(c => ({
+    'Student Name': c.students?.name,
+    'Register No': c.students?.register_number,
+    'Course': c.course_name,
+    'Platform': c.platform,
+    'Date': c.completion_date,
+    'Batch': c.students?.batches?.name || 'N/A',
+    'Section': c.students?.section,
+  }));
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[#1a365d]">Student Certifications</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-[#1a365d]">Student Certifications</h1>
+      </div>
+
+      <div className="flex justify-between items-center gap-4">
+        <DataFilterBar
+          batches={batches}
+          sections={['A', 'B', 'C']}
+          currentBatch={batch}
+          currentSection={section}
+        />
+        <ExportExcelButton
+          data={exportData}
+          filename="student-certifications"
+        />
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-gray-600">

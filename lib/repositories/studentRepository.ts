@@ -11,7 +11,7 @@ export const studentRepository = {
       .select('*, batches(name)');
 
     if (filters.batch) {
-      query = query.eq('batches(name)', filters.batch);
+      query = query.eq('batch_id', filters.batch);
     }
     if (filters.section) {
       query = query.eq('section', filters.section);

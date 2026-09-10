@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import PrintButton from './PrintButton';
 
 export default async function ReportsPage() {
   const supabase = await createClient();
@@ -36,12 +37,7 @@ export default async function ReportsPage() {
           <h1 className="text-3xl font-bold text-[#1a365d]">Departmental Reports</h1>
           <p className="text-gray-600">Overview of data collection progress.</p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-        >
-          Export to PDF
-        </button>
+        <PrintButton />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

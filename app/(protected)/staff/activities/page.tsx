@@ -1,15 +1,69 @@
 import { createClient } from '@/lib/supabase/server';
+import { batchRepository } from '@/lib/repositories/batchRepository';
+import DataFilterBar from '../components/DataFilterBar';
+import ExportExcelButton from '../components/ExportExcelButton';
 
-export default async function StaffActivitiesPage() {
+export default async function StaffActivitiesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ batch?: string; section?: string }>;
+}) {
+  const { batch, section } = await searchParams;
   const supabase = await createClient();
-  const { data: activities } = await supabase
+
+  const batches = await batchRepository.getAll();
+
+  let query = supabase
     .from('activities')
-    .select('*, students(name, register_number)')
+    .select('*, students!inner(name, register_number, batch_id, section)')
     .order('date', { ascending: false });
+
+  if (batch) {
+    query = query.eq('students.batch_id', batch);
+  }
+  if (section) {
+    query = query.eq('students.section', section);
+  }
+
+  const { data: activities, error } = await query;
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        Error loading activities: {error.message}
+      </div>
+    );
+  }
+
+  const exportData = activities.map(a => ({
+    'Student Name': a.students?.name,
+    'Register No': a.students?.register_number,
+    'Activity': a.activity_name,
+    'Role': a.role,
+    'Date': a.date,
+    'Batch': a.students?.batches?.name || 'N/A',
+    'Section': a.students?.section,
+  }));
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[#1a365d]">Student Activities</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-[#1a365d]">Student Activities</h1>
+      </div>
+
+      <div className="flex justify-between items-center gap-4">
+        <DataFilterBar
+          batches={batches}
+          sections={['A', 'B', 'C']}
+          currentBatch={batch}
+          currentSection={section}
+        />
+        <ExportExcelButton
+          data={exportData}
+          filename="student-activities"
+        />
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-gray-600">
